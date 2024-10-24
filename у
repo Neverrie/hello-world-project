@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Обновляем репозиторий с GitHub
+echo "Updating repository from GitHub..."
+git pull origin master
+
+# Проверяем, был ли обновлен main.cpp
+if git diff --name-only | grep -q "main.cpp"; then
+    echo "main.cpp was updated from GitHub."
+fi
+
+# Компилируем проект
+echo "Compiling..."
+g++ -g -o HelloWorld main.cpp
+
+if [ $? -eq 0 ]; then
+    echo "Compilation successful. Running the program..."
+    ./HelloWorld
+else
+    echo "Compilation failed. Please check your code."
+    exit 1
+fi
+
+# Проверяем, есть ли локальные изменения в main.cpp
+if git status | grep -q "main.cpp"; then
+    echo "Local changes detected in main.cpp. Committing and pushing to GitHub..."
+
+    git add main.cpp
+    git commit -m "Updated main.cpp"
+    git push origin master
+
+    if [ $? -eq 0 ]; then
+        echo "Changes successfully pushed to GitHub."
+    else
+        echo "Failed to push changes. Please check your network or Git configuration."
+        exit 1
+    fi
+else
+    echo "No local changes in main.cpp."
+fi
